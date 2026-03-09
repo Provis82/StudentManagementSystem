@@ -20,13 +20,14 @@ public class MainFrame extends JFrame {
     public MainFrame() {
 
         setTitle("Student Management System");
-        setSize(750,500);
+        setSize(750, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         createMenu();
         createForm();
         loadStudents();
+        
     }
 
     private void createMenu() {
@@ -35,6 +36,7 @@ public class MainFrame extends JFrame {
 
         JMenu fileMenu = new JMenu("File");
         JMenuItem exitItem = new JMenuItem("Exit");
+
         exitItem.addActionListener(e -> System.exit(0));
 
         fileMenu.add(exitItem);
@@ -44,7 +46,7 @@ public class MainFrame extends JFrame {
 
         about.addActionListener(e ->
                 JOptionPane.showMessageDialog(this,
-                        "Student Management System"));
+                        "Student Management System\nVersion 1.0"));
 
         helpMenu.add(about);
 
@@ -56,25 +58,25 @@ public class MainFrame extends JFrame {
 
     private void createForm() {
 
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(10,10));
 
         JPanel form = new JPanel(new GridLayout(5,2,10,10));
 
-        form.add(new JLabel("Name"));
+        form.add(new JLabel("Name:"));
         nameField = new JTextField();
         form.add(nameField);
 
-        form.add(new JLabel("Email"));
+        form.add(new JLabel("Email:"));
         emailField = new JTextField();
         form.add(emailField);
 
-        form.add(new JLabel("Course"));
+        form.add(new JLabel("Course:"));
         courseBox = new JComboBox<>(new String[]{
-                "Java","Database","Networking","AI"
+                "Java", "Database", "Networking", "AI"
         });
         form.add(courseBox);
 
-        form.add(new JLabel("Marks"));
+        form.add(new JLabel("Marks:"));
         marksField = new JTextField();
         form.add(marksField);
 
@@ -84,16 +86,15 @@ public class MainFrame extends JFrame {
         form.add(addButton);
         form.add(deleteButton);
 
-        panel.add(form,BorderLayout.NORTH);
+        panel.add(form, BorderLayout.NORTH);
 
-        String columns[] = {"ID","Name","Email","Course","Marks"};
+        String columns[] = {"Name", "Email", "Course", "Marks"};
 
-        model = new DefaultTableModel(columns,0);
+        model = new DefaultTableModel(columns, 0);
         table = new JTable(model);
 
         JScrollPane scrollPane = new JScrollPane(table);
-
-        panel.add(scrollPane,BorderLayout.CENTER);
+        panel.add(scrollPane, BorderLayout.CENTER);
 
         add(panel);
 
@@ -134,65 +135,54 @@ public class MainFrame extends JFrame {
 
     private void addStudent() {
 
-        String name = nameField.getText();
-        String email = emailField.getText();
+        String name = nameField.getText().trim();
+        String email = emailField.getText().trim();
         String course = courseBox.getSelectedItem().toString();
-        double marks = Double.parseDouble(marksField.getText());
+        String marksText = marksField.getText().trim();
+
+        if (name.isEmpty() || email.isEmpty() || marksText.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please fill all fields.");
+            return;
+        }
+
+        double marks;
 
         try {
-
-            Connection conn = DatabaseConnection.getConnection();
-
-            String sql =
-                    "INSERT INTO students(name,email,course,marks) VALUES(?,?,?,?)";
-
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setString(1,name);
-            ps.setString(2,email);
-            ps.setString(3,course);
-            ps.setDouble(4,marks);
-
-            ps.executeUpdate();
-
-            JOptionPane.showMessageDialog(this,"Student Added");
-
-            loadStudents();
-
-        } catch(Exception e) {
-            e.printStackTrace();
+            marks = Double.parseDouble(marksText);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Marks must be a number.");
+            return;
         }
+
+        model.addRow(new Object[]{
+                name,
+                email,
+                course,
+                marks
+        });
+
+        clearFields();
     }
 
     private void deleteStudent() {
 
         int row = table.getSelectedRow();
 
-        if(row == -1) {
-            JOptionPane.showMessageDialog(this,"Select a student first");
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a student to delete.");
             return;
         }
 
-        int id = (int) model.getValueAt(row,0);
+        model.removeRow(row);
+    }
 
-        try {
+    private void clearFields() {
 
-            Connection conn = DatabaseConnection.getConnection();
-
-            String sql = "DELETE FROM students WHERE id=?";
-
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setInt(1,id);
-
-            ps.executeUpdate();
-
-            JOptionPane.showMessageDialog(this,"Student Deleted");
-
-            loadStudents();
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        nameField.setText("");
+        emailField.setText("");
+        marksField.setText("");
     }
 }
