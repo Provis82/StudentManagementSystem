@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug Main",
+            "request": "launch",
+            "mainClass": "sms.Main",
+            "projectName": "StudentManagementSystem",
+            "vmArgs": "--enable-preview",
+            "classPaths": [
+                "${workspaceFolder}/SMS_Project/src",
+                "${workspaceFolder}/lib/mysql-connector-java-8.0.33.jar"
+            ]
+        }
+    ]
+}
