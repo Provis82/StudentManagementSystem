@@ -1,12 +1,12 @@
 -- Student Management System Database
--- Run this script to create and populate the database
+-- Database name: SMS (not sms_db)
 
 -- Drop database if exists (for clean setup)
-DROP DATABASE IF EXISTS sms_db;
+DROP DATABASE IF EXISTS SMS;
 
 -- Create database
-CREATE DATABASE sms_db;
-USE sms_db;
+CREATE DATABASE SMS;
+USE SMS;
 
 -- Create students table
 CREATE TABLE students (
@@ -26,7 +26,7 @@ CREATE TABLE users (
     full_name VARCHAR(100)
 );
 
--- Insert 7 test students (requirement met)
+-- Insert 7 test students
 INSERT INTO students (name, email, student_id, course, marks) VALUES
 ('John Doe', 'john.doe@email.com', 'S001', 'Computer Science', 85.5),
 ('Mary Ann Smith', 'mary.smith@email.com', 'S002', 'Information Technology', 92.0),
