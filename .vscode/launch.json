@@ -3,14 +3,29 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Debug Main",
+            "name": "Debug StudentManagementSystem",
             "request": "launch",
             "mainClass": "sms.Main",
             "projectName": "StudentManagementSystem",
+            "args": "",
             "vmArgs": "--enable-preview",
             "classPaths": [
-                "${workspaceFolder}/SMS_Project/src",
-                "${workspaceFolder}/lib/mysql-connector-java-8.0.33.jar"
+                "${workspaceFolder}/SMS_Project/bin",
+                "${workspaceFolder}/lib/mysql-connector-j-9.6.0.jar"
+            ],
+            "sourcePaths": [
+                "${workspaceFolder}/SMS_Project/src"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "java",
+            "name": "Debug Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "classPaths": [
+                "${workspaceFolder}/SMS_Project/bin",
+                "${workspaceFolder}/lib/mysql-connector-j-9.6.0.jar"
             ]
         }
     ]

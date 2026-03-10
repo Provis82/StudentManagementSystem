@@ -4,8 +4,8 @@
     ],
     "java.project.outputPath": "SMS_Project/bin",
     "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "C:\\mysql-connector\\mysql-connector-java-8.0.33.jar",
-        "${workspaceFolder}/lib/*.jar"
-    ]
+        "lib/**/*.jar"
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.forceBuildBeforeLaunch": true
 }
