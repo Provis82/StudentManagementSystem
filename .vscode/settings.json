@@ -1,18 +1,11 @@
 {
-    "sqltools.connections": [
-        {
-            "mysqlOptions": {
-                "authProtocol": "default",
-                "enableSsl": "Disabled"
-            },
-            "ssh": "Disabled",
-            "previewLimit": 50,
-            "server": "localhost",
-            "port": 3306,
-            "driver": "MySQL",
-            "name": "SMS",
-            "username": "root",
-            "database": "SMS"
-        }
+    "java.project.sourcePaths": [
+        "SMS_Project/src"
+    ],
+    "java.project.outputPath": "SMS_Project/bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "C:\\mysql-connector\\mysql-connector-java-8.0.33.jar",
+        "${workspaceFolder}/lib/*.jar"
     ]
 }
