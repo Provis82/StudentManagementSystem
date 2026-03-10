@@ -10,10 +10,10 @@ public class DatabaseConnection {
     private static final String PORT     = "3306";
     private static final String DATABASE = "sms_db";
     private static final String USERNAME = "root";
-    private static final String PASSWORD = "@Admin$12345"; // put your MySQL password here
+    private static final String PASSWORD = "1234"; // Your MySQL password
 
     private static final String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" +
-                                      DATABASE + "?useSSL=false&allowPublicKeyRetrieval=true";
+                                      DATABASE + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
 
     private static Connection connection = null;
 

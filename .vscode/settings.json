@@ -10,23 +10,9 @@
             "server": "localhost",
             "port": 3306,
             "driver": "MySQL",
-            "name": "Local instance MySQL80",
+            "name": "SMS",
             "username": "root",
             "database": "SMS"
-        },
-        {
-            "mysqlOptions": {
-                "authProtocol": "default",
-                "enableSsl": "Disabled"
-            },
-            "ssh": "Disabled",
-            "previewLimit": 50,
-            "server": "localhost",
-            "port": 3306,
-            "driver": "MySQL",
-            "name": "SMS",
-            "username": "Root",
-            "database": "Local instance MySQL 80"
         }
     ]
 }

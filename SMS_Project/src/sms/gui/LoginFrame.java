@@ -22,11 +22,9 @@ public class LoginFrame extends JFrame {
     private int progressValue = 0;
     private JPanel logoPanel;
     
-    // For Remember Me functionality
     private Preferences prefs;
     
     public LoginFrame() {
-        // Initialize preferences
         prefs = Preferences.userRoot().node(this.getClass().getName());
         
         setTitle("Student Management System - Login");
@@ -35,11 +33,10 @@ public class LoginFrame extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         
-        // Main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Top panel for logo
+        // Logo Panel
         logoPanel = new JPanel();
         logoPanel.setBackground(new Color(70, 130, 180));
         logoPanel.setPreferredSize(new Dimension(450, 80));
@@ -49,7 +46,6 @@ public class LoginFrame extends JFrame {
         logoLabel.setForeground(Color.WHITE);
         logoPanel.add(logoLabel);
         
-        // Add a simple logo icon
         JLabel iconLabel = new JLabel("🎓");
         iconLabel.setFont(new Font("Arial", Font.BOLD, 30));
         iconLabel.setForeground(Color.WHITE);
@@ -57,20 +53,18 @@ public class LoginFrame extends JFrame {
         
         mainPanel.add(logoPanel, BorderLayout.NORTH);
         
-        // Center panel for login form
+        // Form Panel
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBorder(BorderFactory.createTitledBorder("Login Credentials"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         
         // Username
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridx = 0; gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
         formPanel.add(new JLabel("Username:"), gbc);
         
-        gbc.gridx = 1;
-        gbc.gridy = 0;
+        gbc.gridx = 1; gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -78,14 +72,11 @@ public class LoginFrame extends JFrame {
         formPanel.add(usernameField, gbc);
         
         // Password
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.EAST;
+        gbc.gridx = 0; gbc.gridy = 1;
         gbc.weightx = 0;
         formPanel.add(new JLabel("Password:"), gbc);
         
-        gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridx = 1; gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -93,44 +84,38 @@ public class LoginFrame extends JFrame {
         formPanel.add(passwordField, gbc);
         
         // Remember Me
-        gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridx = 1; gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
         rememberMe = new JCheckBox("Remember Me");
         formPanel.add(rememberMe, gbc);
         
-        // Buttons panel
+        // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
         JButton loginButton = new JButton("Login");
         JButton resetButton = new JButton("Reset");
         
         loginButton.setPreferredSize(new Dimension(100, 35));
         resetButton.setPreferredSize(new Dimension(100, 35));
-        
         loginButton.setBackground(new Color(70, 130, 180));
         loginButton.setForeground(Color.WHITE);
-        loginButton.setFocusPainted(false);
         
         buttonPanel.add(loginButton);
         buttonPanel.add(resetButton);
         
-        gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridx = 1; gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
         formPanel.add(buttonPanel, gbc);
         
         // Message Label
-        gbc.gridx = 1;
-        gbc.gridy = 4;
+        gbc.gridx = 1; gbc.gridy = 4;
         messageLabel = new JLabel("");
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         messageLabel.setForeground(Color.RED);
         formPanel.add(messageLabel, gbc);
         
         // Progress Bar
-        gbc.gridx = 1;
-        gbc.gridy = 5;
+        gbc.gridx = 1; gbc.gridy = 5;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         progressBar = new JProgressBar(0, 100);
         progressBar.setStringPainted(true);
@@ -138,8 +123,9 @@ public class LoginFrame extends JFrame {
         formPanel.add(progressBar, gbc);
         
         mainPanel.add(formPanel, BorderLayout.CENTER);
+        add(mainPanel);
         
-        // Load saved username if Remember Me was checked
+        // Load saved username
         String savedUsername = prefs.get("username", "");
         if (!savedUsername.isEmpty()) {
             usernameField.setText(savedUsername);
@@ -147,15 +133,9 @@ public class LoginFrame extends JFrame {
             passwordField.requestFocus();
         }
         
-        add(mainPanel);
-        
-        // Login Button Action
+        // Actions
         loginButton.addActionListener(e -> performLogin());
-        
-        // Reset Button Action
         resetButton.addActionListener(e -> resetFields());
-        
-        // Enter key press in password field triggers login
         passwordField.addActionListener(e -> performLogin());
     }
     
@@ -163,23 +143,19 @@ public class LoginFrame extends JFrame {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
         
-        // Validation using string manipulation
         if (username.isEmpty() || password.isEmpty()) {
             messageLabel.setText("❌ Please enter username and password");
             return;
         }
         
-        // Disable input during login simulation
         usernameField.setEnabled(false);
         passwordField.setEnabled(false);
         rememberMe.setEnabled(false);
         
-        // Show progress bar
         progressBar.setVisible(true);
         progressBar.setValue(0);
         progressValue = 0;
         
-        // Simulate login process with progress bar
         progressTimer = new Timer(30, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -189,29 +165,22 @@ public class LoginFrame extends JFrame {
                 if (progressValue >= 100) {
                     progressTimer.stop();
                     
-                    // Check credentials against database
                     boolean validLogin = false;
-                    String dbPassword = "";
                     
                     try (Connection conn = DatabaseConnection.getConnection()) {
-                        String sql = "SELECT password FROM users WHERE username=?";
+                        String sql = "SELECT * FROM users WHERE username=? AND password=?";
                         PreparedStatement ps = conn.prepareStatement(sql);
                         ps.setString(1, username);
+                        ps.setString(2, password);
                         ResultSet rs = ps.executeQuery();
-                        
-                        if (rs.next()) {
-                            dbPassword = rs.getString("password");
-                            // In real app, use proper password hashing
-                            validLogin = password.equals(dbPassword);
-                        }
+                        validLogin = rs.next();
                     } catch (SQLException ex) {
                         ex.printStackTrace();
-                        // Fallback to hardcoded admin if database fails
+                        // Fallback
                         validLogin = username.equals("admin") && password.equals("admin123");
                     }
                     
                     if (validLogin) {
-                        // Save username if Remember Me is checked
                         if (rememberMe.isSelected()) {
                             prefs.put("username", username);
                         } else {
@@ -221,14 +190,12 @@ public class LoginFrame extends JFrame {
                         messageLabel.setText("✅ Login successful!");
                         messageLabel.setForeground(new Color(0, 150, 0));
                         
-                        // Open Main Frame
                         new MainFrame().setVisible(true);
                         dispose();
                     } else {
                         messageLabel.setText("❌ Invalid username or password");
                         messageLabel.setForeground(Color.RED);
                         
-                        // Re-enable input
                         usernameField.setEnabled(true);
                         passwordField.setEnabled(true);
                         rememberMe.setEnabled(true);
@@ -239,7 +206,6 @@ public class LoginFrame extends JFrame {
                 }
             }
         });
-        
         progressTimer.start();
     }
     
@@ -251,16 +217,5 @@ public class LoginFrame extends JFrame {
         if (progressTimer != null && progressTimer.isRunning()) {
             progressTimer.stop();
         }
-    }
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            new LoginFrame().setVisible(true);
-        });
     }
 }

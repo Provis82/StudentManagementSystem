@@ -1,7 +1,6 @@
 package sms.util;
 
 public class ValidationUtil {
-
     public static boolean isValidEmail(String email) {
         return email != null && 
                email.contains("@") && 
@@ -18,17 +17,5 @@ public class ValidationUtil {
         } catch (NumberFormatException e) {
             return false;
         }
-    }
-    
-    public static boolean isValidName(String name) {
-        return name != null && 
-               !name.trim().isEmpty() && 
-               name.matches("^[a-zA-Z\\s-']+$");
-    }
-    
-    public static boolean isValidStudentId(String id) {
-        return id != null && 
-               !id.trim().isEmpty() && 
-               id.matches("^[A-Z0-9-]+$");
     }
 }
