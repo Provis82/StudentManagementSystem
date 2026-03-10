@@ -1,6 +1,5 @@
 package sms.gui;
 
-import sms.model.Student;
 import sms.database.DatabaseConnection;
 import sms.util.ValidationUtil;
 
@@ -9,14 +8,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.ArrayList;
 
 public class MainFrame extends JFrame {
     
@@ -220,7 +215,7 @@ public class MainFrame extends JFrame {
         displayArea = new JTextArea(8, 40);
         displayArea.setEditable(false);
         displayArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        displayArea.setBorder(BorderFactory.createTitledBorder("Student Summary (String Concatenation Demo)"));
+        displayArea.setBorder(BorderFactory.createTitledBorder("Student Summary (String Manipulation Demo)"));
         
         // Status and validation labels
         statusLabel = new JLabel("Ready");
@@ -438,24 +433,35 @@ public class MainFrame extends JFrame {
                 String course = rs.getString("course");
                 double marks = rs.getDouble("marks");
                 
-                // Create Student object to use its methods (polymorphism)
-                Student s = new Student(name, email, studentId, course, marks);
-                s.setId(id);
+                // Get grade based on marks
+                String grade = getGrade(marks);
                 
                 tableModel.addRow(new Object[]{
-                    s.getId(),
-                    s.getStudentId(),
-                    s.getName(),
-                    s.getEmail(),
-                    s.getCourse(),
-                    s.getMarks(),
-                    s.getGrade()
+                    id,
+                    studentId,
+                    name,
+                    email,
+                    course,
+                    marks,
+                    grade
                 });
                 
-                // Add to display area using string concatenation
-                displayArea.append(s.getSummary() + "\n" +
-                    "Email: " + s.getEmail().substring(0, s.getEmail().indexOf('@')) + // substring demo
-                    " | " + s.getName().split(" ")[0] + "'s Record\n\n"); // split demo
+                // String manipulation demos:
+                // 1. Split - get first name
+                String firstName = name.split(" ")[0];
+                
+                // 2. Substring - get email username
+                String emailUsername = email.substring(0, email.indexOf('@'));
+                
+                // 3. Concatenation - build summary
+                String summary = "Name: " + name + 
+                               " | Course: " + course + 
+                               " | Marks: " + marks + 
+                               " | Grade: " + grade;
+                
+                displayArea.append(summary + "\n");
+                displayArea.append("First Name: " + firstName + 
+                                 " | Email Username: " + emailUsername + "\n\n");
                 
                 count++;
             }
@@ -470,6 +476,30 @@ public class MainFrame extends JFrame {
         }
     }
     
+    // Helper method to determine grade
+    private String getGrade(double marks) {
+        if (marks >= 90) return "A";
+        else if (marks >= 80) return "B";
+        else if (marks >= 70) return "C";
+        else if (marks >= 60) return "D";
+        else return "F";
+    }
+    
+    // Convert to Title Case (string manipulation)
+    private String toTitleCase(String input) {
+        if (input == null || input.isEmpty()) return input;
+        String[] words = input.trim().toLowerCase().split("\\s+");
+        StringBuilder result = new StringBuilder();
+        for (String word : words) {
+            if (word.length() > 0) {
+                result.append(Character.toUpperCase(word.charAt(0)))
+                      .append(word.substring(1))
+                      .append(" ");
+            }
+        }
+        return result.toString().trim();
+    }
+    
     private void addStudent() {
         if (!validateBeforeSave()) return;
         
@@ -479,14 +509,13 @@ public class MainFrame extends JFrame {
         String course = courseBox.getSelectedItem().toString();
         double marks = Double.parseDouble(marksField.getText().trim());
         
-        // Create Student object (using OOP)
-        Student student = new Student(name, email, studentId, course, marks);
+        // Convert name to Title Case
+        name = toTitleCase(name);
         
-        // Save to database using Student's add method
         try (Connection conn = DatabaseConnection.getConnection()) {
             String sql = "INSERT INTO students (name, email, student_id, course, marks) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, student.getName()); // Will be in Title Case from Student constructor
+            ps.setString(1, name);
             ps.setString(2, email);
             ps.setString(3, studentId.toUpperCase());
             ps.setString(4, course);
@@ -495,8 +524,12 @@ public class MainFrame extends JFrame {
             int result = ps.executeUpdate();
             
             if (result > 0) {
+                String grade = getGrade(marks);
+                String summary = "Name: " + name + " | Course: " + course + 
+                               " | Marks: " + marks + " | Grade: " + grade;
+                
                 JOptionPane.showMessageDialog(this, 
-                    "Student added successfully!\n" + student.getSummary(),
+                    "Student added successfully!\n" + summary,
                     "Success", JOptionPane.INFORMATION_MESSAGE);
                 
                 loadStudents();
@@ -526,10 +559,13 @@ public class MainFrame extends JFrame {
         String course = courseBox.getSelectedItem().toString();
         double marks = Double.parseDouble(marksField.getText().trim());
         
+        // Convert name to Title Case
+        name = toTitleCase(name);
+        
         try (Connection conn = DatabaseConnection.getConnection()) {
             String sql = "UPDATE students SET name=?, email=?, course=?, marks=? WHERE id=?";
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, Student.toTitleCase(name));
+            ps.setString(1, name);
             ps.setString(2, email);
             ps.setString(3, course);
             ps.setDouble(4, marks);
@@ -623,26 +659,25 @@ public class MainFrame extends JFrame {
             
             int count = 0;
             while (rs.next()) {
-                Student s = new Student(
-                    rs.getString("name"),
-                    rs.getString("email"),
-                    rs.getString("student_id"),
-                    rs.getString("course"),
-                    rs.getDouble("marks")
-                );
-                s.setId(rs.getInt("id"));
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String studentId = rs.getString("student_id");
+                String course = rs.getString("course");
+                double marks = rs.getDouble("marks");
+                String grade = getGrade(marks);
                 
                 tableModel.addRow(new Object[]{
-                    s.getId(),
-                    s.getStudentId(),
-                    s.getName(),
-                    s.getEmail(),
-                    s.getCourse(),
-                    s.getMarks(),
-                    s.getGrade()
+                    id,
+                    studentId,
+                    name,
+                    email,
+                    course,
+                    marks,
+                    grade
                 });
                 
-                displayArea.append("🔍 Found: " + s.getSummary() + "\n");
+                displayArea.append("🔍 Found: " + name + " (" + studentId + ")\n");
                 count++;
             }
             
@@ -654,14 +689,15 @@ public class MainFrame extends JFrame {
     }
     
     private void filterStudents() {
-        loadStudents(); // Reload all first
+        // This is a simplified filter for demo purposes
+        // In a real app, you'd query the database with filter conditions
         
-        // Apply filters in memory (simplified for demo)
-        if (filterHighMarks.isSelected() || marksSlider.getValue() != 50) {
-            // This would normally be done with database queries
-            // For demo, we'll just show a message
-            statusLabel.setText("Filters applied - Check console for demo");
+        if (filterHighMarks.isSelected()) {
+            statusLabel.setText("Filter: Marks > 75 (demo - showing all for now)");
+        } else {
+            statusLabel.setText("Filter removed - showing all students");
         }
+        loadStudents(); // Just reload all for demo
     }
     
     private void loadSelectedStudent() {
