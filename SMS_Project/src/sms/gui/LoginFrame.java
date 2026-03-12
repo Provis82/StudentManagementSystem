@@ -28,7 +28,7 @@ public class LoginFrame extends JFrame {
         prefs = Preferences.userRoot().node(this.getClass().getName());
         
         setTitle("Student Management System - Login");
-        setSize(500, 400);
+        setSize(500, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -36,20 +36,23 @@ public class LoginFrame extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Logo Panel
+        // Logo Panel with icon
         logoPanel = new JPanel();
         logoPanel.setBackground(new Color(70, 130, 180));
-        logoPanel.setPreferredSize(new Dimension(450, 80));
+        logoPanel.setPreferredSize(new Dimension(450, 100));
+        logoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
         
-        JLabel logoLabel = new JLabel("📚 STUDENT MANAGEMENT SYSTEM");
+        // Create logo with icon and text
+        JLabel iconLabel = new JLabel("🎓");
+        iconLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        iconLabel.setForeground(Color.WHITE);
+        
+        JLabel logoLabel = new JLabel("STUDENT MANAGEMENT SYSTEM");
         logoLabel.setFont(new Font("Arial", Font.BOLD, 20));
         logoLabel.setForeground(Color.WHITE);
-        logoPanel.add(logoLabel);
         
-        JLabel iconLabel = new JLabel("🎓");
-        iconLabel.setFont(new Font("Arial", Font.BOLD, 30));
-        iconLabel.setForeground(Color.WHITE);
         logoPanel.add(iconLabel);
+        logoPanel.add(logoLabel);
         
         mainPanel.add(logoPanel, BorderLayout.NORTH);
         
@@ -99,6 +102,9 @@ public class LoginFrame extends JFrame {
         resetButton.setPreferredSize(new Dimension(100, 35));
         loginButton.setBackground(new Color(70, 130, 180));
         loginButton.setForeground(Color.WHITE);
+        loginButton.setFocusPainted(false);
+        
+        resetButton.setBackground(new Color(220, 220, 220));
         
         buttonPanel.add(loginButton);
         buttonPanel.add(resetButton);
@@ -120,6 +126,7 @@ public class LoginFrame extends JFrame {
         progressBar = new JProgressBar(0, 100);
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
+        progressBar.setForeground(new Color(70, 130, 180));
         formPanel.add(progressBar, gbc);
         
         mainPanel.add(formPanel, BorderLayout.CENTER);
@@ -148,10 +155,12 @@ public class LoginFrame extends JFrame {
             return;
         }
         
+        // Disable input during login
         usernameField.setEnabled(false);
         passwordField.setEnabled(false);
         rememberMe.setEnabled(false);
         
+        // Show and start progress bar
         progressBar.setVisible(true);
         progressBar.setValue(0);
         progressValue = 0;
@@ -166,18 +175,27 @@ public class LoginFrame extends JFrame {
                     progressTimer.stop();
                     
                     boolean validLogin = false;
+                    String fullName = "";
                     
-                    try (Connection conn = DatabaseConnection.getConnection()) {
-                        String sql = "SELECT * FROM users WHERE username=? AND password=?";
-                        PreparedStatement ps = conn.prepareStatement(sql);
+                    // Check against database
+                    String sql = "SELECT * FROM users WHERE username=? AND password=?";
+                    
+                    try (Connection conn = DatabaseConnection.getConnection();
+                         PreparedStatement ps = conn.prepareStatement(sql)) {
+                        
                         ps.setString(1, username);
                         ps.setString(2, password);
                         ResultSet rs = ps.executeQuery();
-                        validLogin = rs.next();
+                        
+                        if (rs.next()) {
+                            validLogin = true;
+                            fullName = rs.getString("full_name");
+                        }
                     } catch (SQLException ex) {
                         ex.printStackTrace();
-                        // Fallback
+                        // Fallback only if database fails
                         validLogin = username.equals("admin") && password.equals("admin123");
+                        fullName = "Administrator";
                     }
                     
                     if (validLogin) {
@@ -187,7 +205,7 @@ public class LoginFrame extends JFrame {
                             prefs.remove("username");
                         }
                         
-                        messageLabel.setText("✅ Login successful!");
+                        messageLabel.setText("✅ Welcome, " + (fullName.isEmpty() ? username : fullName) + "!");
                         messageLabel.setForeground(new Color(0, 150, 0));
                         
                         new MainFrame().setVisible(true);
@@ -196,6 +214,7 @@ public class LoginFrame extends JFrame {
                         messageLabel.setText("❌ Invalid username or password");
                         messageLabel.setForeground(Color.RED);
                         
+                        // Re-enable input
                         usernameField.setEnabled(true);
                         passwordField.setEnabled(true);
                         rememberMe.setEnabled(true);
@@ -206,6 +225,7 @@ public class LoginFrame extends JFrame {
                 }
             }
         });
+        
         progressTimer.start();
     }
     
@@ -217,5 +237,9 @@ public class LoginFrame extends JFrame {
         if (progressTimer != null && progressTimer.isRunning()) {
             progressTimer.stop();
         }
+        usernameField.setEnabled(true);
+        passwordField.setEnabled(true);
+        rememberMe.setEnabled(true);
+        usernameField.requestFocus();
     }
 }
