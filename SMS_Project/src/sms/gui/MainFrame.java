@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
     private JButton showAllButton;
     private JButton clearButton;
     
-    // Filter components - COMPLETE SET
+    // Filter components
     private JCheckBox filterHighMarks;
     private JCheckBox filterComputerScience;
     private JRadioButton sortByName;
@@ -49,12 +49,12 @@ public class MainFrame extends JFrame {
     private JSlider marksSlider;
     private JLabel sliderValueLabel;
     
-    // Tabbed pane for multiple views
+    // Tabbed pane
     private JTabbedPane tabbedPane;
     private JTextArea displayArea;
     private JTextArea stringManipulationArea;
     
-    // Status and validation labels
+    // Status labels
     private JLabel statusLabel;
     private JLabel validationLabel;
     private JLabel studentCountLabel;
@@ -187,12 +187,12 @@ public class MainFrame extends JFrame {
         updateButton.setEnabled(false);
         deleteButton.setEnabled(false);
         
-        // Filter components - COMPLETE SET
+        // Filter components
         filterHighMarks = new JCheckBox("Show only marks > 75");
         filterComputerScience = new JCheckBox("Show only Computer Science");
         
         sortByName = new JRadioButton("Sort by Name", true);
-        sortByMarks = new JRadioButton("Sort by Marks");
+        sortByMarks = new JRadioButton("Sort by Marks (High to Low)");
         sortByCourse = new JRadioButton("Sort by Course");
         
         sortGroup = new ButtonGroup();
@@ -201,17 +201,17 @@ public class MainFrame extends JFrame {
         sortGroup.add(sortByCourse);
         
         // JSlider for marks range filtering
-        marksSlider = new JSlider(0, 100, 50);
+        marksSlider = new JSlider(0, 100, 0);
         marksSlider.setMajorTickSpacing(25);
         marksSlider.setMinorTickSpacing(5);
         marksSlider.setPaintTicks(true);
         marksSlider.setPaintLabels(true);
         marksSlider.setBorder(BorderFactory.createTitledBorder("Minimum Marks Filter"));
         
-        sliderValueLabel = new JLabel("Current value: 50");
+        sliderValueLabel = new JLabel("Current value: 0");
         sliderValueLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        // Tabbed pane for multiple views
+        // Tabbed pane
         tabbedPane = new JTabbedPane();
         
         // Table setup
@@ -228,14 +228,14 @@ public class MainFrame extends JFrame {
         table.setRowHeight(25);
         table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
         
-        // Add selection listener for Update/Delete
+        // Add selection listener
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
                 loadSelectedStudent();
             }
         });
         
-        // Text areas for display
+        // Text areas
         displayArea = new JTextArea(10, 50);
         displayArea.setEditable(false);
         displayArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -247,7 +247,7 @@ public class MainFrame extends JFrame {
         stringManipulationArea.setBorder(BorderFactory.createTitledBorder(
             "String Manipulation Demo (Title Case, Split, Substring, Concatenation)"));
         
-        // Status and validation labels
+        // Status labels
         statusLabel = new JLabel("Ready");
         statusLabel.setBorder(BorderFactory.createLoweredBevelBorder());
         
@@ -300,7 +300,7 @@ public class MainFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         inputPanel.add(courseBox, gbc);
         
-        // Row 3: Marks and Validation message
+        // Row 3: Marks and Validation
         gbc.gridx = 0; gbc.gridy = 2;
         inputPanel.add(new JLabel("Marks:*"), gbc);
         gbc.gridx = 1; gbc.gridy = 2;
@@ -324,45 +324,44 @@ public class MainFrame extends JFrame {
         gbc.fill = GridBagConstraints.NONE;
         inputPanel.add(buttonPanel, gbc);
         
-        // Center panel - Table, filters, and tabs
+        // Center panel
         JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
         
-        // Filter panel - COMPLETE with all components
+        // Filter panel
         JPanel filterPanel = new JPanel();
         filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.Y_AXIS));
         filterPanel.setBorder(BorderFactory.createTitledBorder("Search, Filter & Sort Options"));
         
-        // Row 1: Search
+        // Search row
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchPanel.add(new JLabel("Search Keyword:"));
+        searchPanel.add(new JLabel("Search:"));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(showAllButton);
         
-        // Row 2: Checkboxes
+        // Checkbox row
         JPanel checkBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         checkBoxPanel.add(filterHighMarks);
         checkBoxPanel.add(filterComputerScience);
         
-        // Row 3: Radio buttons
+        // Radio button row
         JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         radioPanel.add(new JLabel("Sort by:"));
         radioPanel.add(sortByName);
         radioPanel.add(sortByMarks);
         radioPanel.add(sortByCourse);
         
-        // Row 4: Slider
+        // Slider panel
         JPanel sliderPanel = new JPanel(new BorderLayout());
         sliderPanel.add(marksSlider, BorderLayout.CENTER);
         sliderPanel.add(sliderValueLabel, BorderLayout.SOUTH);
         
-        // Add all to filter panel
         filterPanel.add(searchPanel);
         filterPanel.add(checkBoxPanel);
         filterPanel.add(radioPanel);
         filterPanel.add(sliderPanel);
         
-        // Table with tabs
+        // Tabbed pane
         JScrollPane tableScroll = new JScrollPane(table);
         JScrollPane displayScroll = new JScrollPane(displayArea);
         JScrollPane stringScroll = new JScrollPane(stringManipulationArea);
@@ -371,7 +370,7 @@ public class MainFrame extends JFrame {
         tabbedPane.addTab("📝 Summary View", displayScroll);
         tabbedPane.addTab("🔤 String Manipulation Demo", stringScroll);
         
-        // Add student count label to north of center panel
+        // North panel with filter and count
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(filterPanel, BorderLayout.CENTER);
         northPanel.add(studentCountLabel, BorderLayout.EAST);
@@ -379,7 +378,7 @@ public class MainFrame extends JFrame {
         centerPanel.add(northPanel, BorderLayout.NORTH);
         centerPanel.add(tabbedPane, BorderLayout.CENTER);
         
-        // Add panels to frame
+        // Add all to frame
         add(inputPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
         add(statusLabel, BorderLayout.SOUTH);
@@ -394,7 +393,7 @@ public class MainFrame extends JFrame {
         showAllButton.addActionListener(e -> loadStudents());
         clearButton.addActionListener(e -> clearFields());
         
-        // Document listeners for real-time validation
+        // Document listeners for validation
         DocumentListener docListener = new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { validateInputs(); }
             public void removeUpdate(DocumentEvent e) { validateInputs(); }
@@ -451,12 +450,12 @@ public class MainFrame extends JFrame {
         }
         
         if (marksText.isEmpty() || !ValidationUtil.isNumeric(marksText)) {
-            message.append("Valid number required for marks. ");
+            message.append("Valid number required. ");
             valid = false;
         } else {
             double marks = Double.parseDouble(marksText);
             if (marks < 0 || marks > 100) {
-                message.append("Marks must be 0-100. ");
+                message.append("Marks 0-100. ");
                 valid = false;
             }
         }
@@ -494,7 +493,7 @@ public class MainFrame extends JFrame {
     }
     
     private void loadStudents() {
-        String sql = "SELECT * FROM students ORDER BY name";
+        String sql = "SELECT * FROM students ORDER BY name ASC";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -503,9 +502,15 @@ public class MainFrame extends JFrame {
             displayStudentsFromResultSet(rs);
             statusLabel.setText("✅ Loaded all students");
             
+            // Reset filter controls
+            filterHighMarks.setSelected(false);
+            filterComputerScience.setSelected(false);
+            marksSlider.setValue(0);
+            sortByName.setSelected(true);
+            
         } catch (SQLException e) {
-            statusLabel.setText("❌ Error loading students");
             e.printStackTrace();
+            statusLabel.setText("❌ Error loading students");
             JOptionPane.showMessageDialog(this, 
                 "Database error: " + e.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
@@ -541,14 +546,8 @@ public class MainFrame extends JFrame {
             });
             
             // String manipulation demos
-            
-            // 1. Split - get first name
             String firstName = name.split(" ")[0];
-            
-            // 2. Substring - get email username
             String emailUsername = email.substring(0, email.indexOf('@'));
-            
-            // 3. Concatenation for summary
             String summary = "Name: " + name + " | Course: " + course + 
                            " | Marks: " + marks + " | Grade: " + grade;
             
@@ -564,7 +563,11 @@ public class MainFrame extends JFrame {
         }
         
         studentCountLabel.setText("Total Students: " + count);
-        statusLabel.setText("Displaying " + count + " students");
+        
+        if (count == 0) {
+            displayArea.setText("No students match the current filters.");
+            stringManipulationArea.append("No students to display.\n");
+        }
     }
     
     private void applyFilters() {
@@ -582,16 +585,20 @@ public class MainFrame extends JFrame {
         
         // Apply slider filter
         int minMarks = marksSlider.getValue();
-        sql.append(" AND marks >= ?");
-        params.add(minMarks);
+        if (minMarks > 0) {
+            sql.append(" AND marks >= ?");
+            params.add(minMarks);
+        }
         
         // Apply sorting
         if (sortByName.isSelected()) {
-            sql.append(" ORDER BY name");
+            sql.append(" ORDER BY name ASC");
         } else if (sortByMarks.isSelected()) {
             sql.append(" ORDER BY marks DESC");
         } else if (sortByCourse.isSelected()) {
-            sql.append(" ORDER BY course, name");
+            sql.append(" ORDER BY course, name ASC");
+        } else {
+            sql.append(" ORDER BY name ASC");
         }
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -602,18 +609,77 @@ public class MainFrame extends JFrame {
                 ps.setObject(i + 1, params.get(i));
             }
             
+            // Debug output
+            System.out.println("Filter SQL: " + sql);
+            System.out.println("Params: " + params);
+            
             ResultSet rs = ps.executeQuery();
             displayStudentsFromResultSet(rs);
             
-            String filterDesc = "Filtered: ";
-            if (filterHighMarks.isSelected()) filterDesc += "marks>75 ";
-            if (filterComputerScience.isSelected()) filterDesc += "CS only ";
-            filterDesc += "min marks=" + minMarks;
-            statusLabel.setText("✅ " + filterDesc);
+            // Build status message
+            StringBuilder statusMsg = new StringBuilder("✅ Filtered: ");
+            if (filterHighMarks.isSelected()) statusMsg.append("Marks>75 ");
+            if (filterComputerScience.isSelected()) statusMsg.append("CS only ");
+            if (minMarks > 0) statusMsg.append("Min marks=" + minMarks + " ");
+            if (sortByName.isSelected()) statusMsg.append("| Sorted by Name");
+            else if (sortByMarks.isSelected()) statusMsg.append("| Sorted by Marks (high-low)");
+            else if (sortByCourse.isSelected()) statusMsg.append("| Sorted by Course");
+            
+            statusLabel.setText(statusMsg.toString());
             
         } catch (SQLException e) {
             e.printStackTrace();
             statusLabel.setText("❌ Error applying filters");
+            JOptionPane.showMessageDialog(this, 
+                "Filter error: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void searchStudents() {
+        String keyword = searchField.getText().trim();
+        
+        if (keyword.isEmpty()) {
+            loadStudents();
+            return;
+        }
+        
+        String sql = "SELECT * FROM students WHERE " +
+                     "LOWER(name) LIKE ? OR " +
+                     "LOWER(student_id) LIKE ? OR " +
+                     "LOWER(course) LIKE ? OR " +
+                     "LOWER(email) LIKE ? " +
+                     "ORDER BY name ASC";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            String pattern = "%" + keyword.toLowerCase() + "%";
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            ps.setString(3, pattern);
+            ps.setString(4, pattern);
+            
+            ResultSet rs = ps.executeQuery();
+            
+            // Check if any results
+            if (!rs.isBeforeFirst()) {
+                JOptionPane.showMessageDialog(this, 
+                    "No students found matching '" + keyword + "'",
+                    "Search Result", JOptionPane.INFORMATION_MESSAGE);
+                loadStudents();
+                return;
+            }
+            
+            displayStudentsFromResultSet(rs);
+            statusLabel.setText("✅ Search results for: '" + keyword + "'");
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            statusLabel.setText("❌ Search error");
+            JOptionPane.showMessageDialog(this, 
+                "Search error: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -652,11 +718,11 @@ public class MainFrame extends JFrame {
                 statusLabel.setText("✅ Student added successfully");
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             statusLabel.setText("❌ Error adding student");
             JOptionPane.showMessageDialog(this, 
                 "Database Error: " + e.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
         }
     }
     
@@ -698,11 +764,11 @@ public class MainFrame extends JFrame {
                 statusLabel.setText("✅ Student updated successfully");
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             statusLabel.setText("❌ Error updating student");
             JOptionPane.showMessageDialog(this, 
                 "Database Error: " + e.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
         }
     }
     
@@ -740,47 +806,12 @@ public class MainFrame extends JFrame {
                     statusLabel.setText("✅ Student deleted successfully");
                 }
             } catch (SQLException e) {
+                e.printStackTrace();
                 statusLabel.setText("❌ Error deleting student");
                 JOptionPane.showMessageDialog(this, 
                     "Database Error: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
             }
-        }
-    }
-    
-    private void searchStudents() {
-        String keyword = searchField.getText().trim();
-        
-        if (keyword.isEmpty()) {
-            loadStudents();
-            return;
-        }
-        
-        String sql = "SELECT * FROM students WHERE " +
-                     "LOWER(name) LIKE ? OR " +
-                     "LOWER(student_id) LIKE ? OR " +
-                     "LOWER(course) LIKE ? OR " +
-                     "LOWER(email) LIKE ? " +
-                     "ORDER BY name";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            String pattern = "%" + keyword.toLowerCase() + "%";
-            ps.setString(1, pattern);
-            ps.setString(2, pattern);
-            ps.setString(3, pattern);
-            ps.setString(4, pattern);
-            
-            ResultSet rs = ps.executeQuery();
-            displayStudentsFromResultSet(rs);
-            
-            statusLabel.setText("✅ Searched for: '" + keyword + "'");
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            statusLabel.setText("❌ Search error");
         }
     }
     
