@@ -5,6 +5,7 @@ import sms.util.ValidationUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.ChangeListener;
@@ -31,7 +32,7 @@ public class MainFrame extends JFrame {
     private JTable table;
     private DefaultTableModel tableModel;
     
-    // Buttons
+    // Buttons - Clean aesthetic buttons
     private JButton addButton;
     private JButton updateButton;
     private JButton deleteButton;
@@ -49,11 +50,6 @@ public class MainFrame extends JFrame {
     private JSlider marksSlider;
     private JLabel sliderValueLabel;
     
-    // Tabbed pane
-    private JTabbedPane tabbedPane;
-    private JTextArea displayArea;
-    private JTextArea stringManipulationArea;
-    
     // Status labels
     private JLabel statusLabel;
     private JLabel validationLabel;
@@ -62,13 +58,27 @@ public class MainFrame extends JFrame {
     // Currently selected student ID
     private int selectedStudentId = -1;
     
+    // Color scheme - Light sky blue background
+    private Color backgroundColor = new Color(230, 242, 255);    // Soft light sky blue
+    private Color panelColor = Color.WHITE;
+    private Color borderColor = new Color(200, 215, 230);        // Soft blue-gray
+    
+    // Button colors - Clean, aesthetic palette
+    private Color addButtonColor = new Color(52, 152, 219);      // Soft blue
+    private Color updateButtonColor = new Color(46, 204, 113);   // Soft green
+    private Color deleteButtonColor = new Color(231, 76, 60);    // Soft red
+    private Color clearButtonColor = new Color(155, 89, 182);    // Soft purple
+    private Color searchButtonColor = new Color(52, 73, 94);     // Dark slate
+    private Color showAllButtonColor = new Color(241, 196, 15);  // Soft yellow
+    
     public MainFrame() {
-        setTitle("Student Management System - Main Panel");
-        setSize(1100, 750);
+        setTitle("Student Management System");
+        setSize(1300, 750);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(backgroundColor);
         
-        createMenu();
         initComponents();
         layoutComponents();
         setupListeners();
@@ -76,123 +86,60 @@ public class MainFrame extends JFrame {
         validateInputs();
     }
     
-    private void createMenu() {
-        JMenuBar menuBar = new JMenuBar();
-        
-        // File Menu
-        JMenu fileMenu = new JMenu("File");
-        fileMenu.setMnemonic('F');
-        
-        JMenuItem exitItem = new JMenuItem("Exit");
-        exitItem.setMnemonic('x');
-        exitItem.setAccelerator(KeyStroke.getKeyStroke("ctrl X"));
-        exitItem.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to exit?", "Confirm Exit",
-                JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                DatabaseConnection.closeConnection();
-                System.exit(0);
-            }
-        });
-        fileMenu.add(exitItem);
-        
-        // Students Menu
-        JMenu studentsMenu = new JMenu("Students");
-        studentsMenu.setMnemonic('S');
-        
-        JMenuItem addItem = new JMenuItem("Add Student");
-        addItem.setAccelerator(KeyStroke.getKeyStroke("ctrl N"));
-        addItem.addActionListener(e -> focusOnAdd());
-        
-        JMenuItem updateItem = new JMenuItem("Update Student");
-        updateItem.setAccelerator(KeyStroke.getKeyStroke("ctrl U"));
-        updateItem.addActionListener(e -> updateStudent());
-        
-        JMenuItem deleteItem = new JMenuItem("Delete Student");
-        deleteItem.setAccelerator(KeyStroke.getKeyStroke("ctrl D"));
-        deleteItem.addActionListener(e -> deleteStudent());
-        
-        JMenuItem searchItem = new JMenuItem("Search Student");
-        searchItem.setAccelerator(KeyStroke.getKeyStroke("ctrl F"));
-        searchItem.addActionListener(e -> searchField.requestFocus());
-        
-        studentsMenu.add(addItem);
-        studentsMenu.add(updateItem);
-        studentsMenu.add(deleteItem);
-        studentsMenu.addSeparator();
-        studentsMenu.add(searchItem);
-        
-        // Help Menu
-        JMenu helpMenu = new JMenu("Help");
-        helpMenu.setMnemonic('H');
-        
-        JMenuItem aboutItem = new JMenuItem("About");
-        aboutItem.setMnemonic('A');
-        aboutItem.addActionListener(e -> {
-            String aboutText = "📚 Student Management System\n" +
-                              "Version 3.0 (Complete)\n\n" +
-                              "Developed for Year 2 CSE Lab Project\n" +
-                              "✅ All Requirements Met:\n" +
-                              "   • Abstract Classes & Interfaces\n" +
-                              "   • Inheritance & Polymorphism\n" +
-                              "   • JDBC Database Integration\n" +
-                              "   • CRUD Operations\n" +
-                              "   • Real-time Validation\n" +
-                              "   • String Manipulation\n" +
-                              "   • JTabbedPane for Multiple Views\n" +
-                              "   • JSlider for Marks Range Filter\n" +
-                              "   • JRadioButtons for Sorting\n" +
-                              "   • JCheckBoxes for Filtering\n" +
-                              "   • 5+ Test Students\n\n" +
-                              "🔧 Database: MySQL (SMS)\n" +
-                              "👥 Team Project\n" +
-                              "📅 March 2026";
-            JOptionPane.showMessageDialog(this, aboutText,
-                "About SMS", JOptionPane.INFORMATION_MESSAGE);
-        });
-        helpMenu.add(aboutItem);
-        
-        menuBar.add(fileMenu);
-        menuBar.add(studentsMenu);
-        menuBar.add(helpMenu);
-        setJMenuBar(menuBar);
-    }
-    
     private void initComponents() {
         // Input fields
-        nameField = new JTextField(20);
-        emailField = new JTextField(20);
-        studentIdField = new JTextField(10);
-        marksField = new JTextField(10);
+        nameField = createTextField();
+        emailField = createTextField();
+        studentIdField = createTextField();
+        marksField = createTextField();
         
         String[] courses = {
             "Computer Science", "Information Technology",
             "Software Engineering", "Data Science", 
-            "Networking", "Artificial Intelligence",
-            "Cyber Security"
+            "Networking", "Artificial Intelligence"
         };
         courseBox = new JComboBox<>(courses);
-        searchField = new JTextField(15);
+        courseBox.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        courseBox.setBackground(Color.WHITE);
+        courseBox.setBorder(BorderFactory.createLineBorder(borderColor));
         
-        // Buttons
-        addButton = new JButton("Add Student");
-        updateButton = new JButton("Update Student");
-        deleteButton = new JButton("Delete Student");
-        searchButton = new JButton("Search");
-        showAllButton = new JButton("Show All");
-        clearButton = new JButton("Clear Form");
+        searchField = createTextField();
+        searchField.setPreferredSize(new Dimension(250, 38));
         
-        // Initially disable update and delete
+        // CRUD Buttons - No icons, just text
+        addButton = createAestheticButton("Add", addButtonColor, Color.BLACK);
+        updateButton = createAestheticButton("Update", updateButtonColor, Color.BLACK);
+        deleteButton = createAestheticButton("Delete", deleteButtonColor, Color.BLACK);
+        clearButton = createAestheticButton("Clear", clearButtonColor, Color.WHITE);
+        searchButton = createAestheticButton("Search", searchButtonColor, Color.WHITE);
+        showAllButton = createAestheticButton("Show All", showAllButtonColor, Color.BLACK);
+        
+        // Set button sizes
+        Dimension crudSize = new Dimension(100, 40);
+        addButton.setPreferredSize(crudSize);
+        updateButton.setPreferredSize(crudSize);
+        deleteButton.setPreferredSize(crudSize);
+        clearButton.setPreferredSize(crudSize);
+        searchButton.setPreferredSize(new Dimension(90, 38));
+        showAllButton.setPreferredSize(new Dimension(90, 38));
+        
+        // Add hover effects
+        addHoverEffect(addButton, addButtonColor);
+        addHoverEffect(updateButton, updateButtonColor);
+        addHoverEffect(deleteButton, deleteButtonColor);
+        addHoverEffect(clearButton, clearButtonColor);
+        addHoverEffect(searchButton, searchButtonColor);
+        addHoverEffect(showAllButton, showAllButtonColor);
+        
         updateButton.setEnabled(false);
         deleteButton.setEnabled(false);
         
         // Filter components
-        filterHighMarks = new JCheckBox("Show only marks > 75");
-        filterComputerScience = new JCheckBox("Show only Computer Science");
+        filterHighMarks = new JCheckBox("Only marks > 75");
+        filterComputerScience = new JCheckBox("Only Computer Science");
         
         sortByName = new JRadioButton("Sort by Name", true);
-        sortByMarks = new JRadioButton("Sort by Marks (High to Low)");
+        sortByMarks = new JRadioButton("Sort by Marks");
         sortByCourse = new JRadioButton("Sort by Course");
         
         sortGroup = new ButtonGroup();
@@ -200,21 +147,34 @@ public class MainFrame extends JFrame {
         sortGroup.add(sortByMarks);
         sortGroup.add(sortByCourse);
         
-        // JSlider for marks range filtering
+        // Style checkboxes and radio buttons
+        Font checkFont = new Font("Segoe UI", Font.PLAIN, 13);
+        filterHighMarks.setFont(checkFont);
+        filterHighMarks.setBackground(panelColor);
+        filterComputerScience.setFont(checkFont);
+        filterComputerScience.setBackground(panelColor);
+        sortByName.setFont(checkFont);
+        sortByName.setBackground(panelColor);
+        sortByMarks.setFont(checkFont);
+        sortByMarks.setBackground(panelColor);
+        sortByCourse.setFont(checkFont);
+        sortByCourse.setBackground(panelColor);
+        
+        // JSlider
         marksSlider = new JSlider(0, 100, 0);
         marksSlider.setMajorTickSpacing(25);
         marksSlider.setMinorTickSpacing(5);
         marksSlider.setPaintTicks(true);
         marksSlider.setPaintLabels(true);
-        marksSlider.setBorder(BorderFactory.createTitledBorder("Minimum Marks Filter"));
+        marksSlider.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        marksSlider.setPreferredSize(new Dimension(300, 50));
+        marksSlider.setBackground(panelColor);
         
-        sliderValueLabel = new JLabel("Current value: 0");
-        sliderValueLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sliderValueLabel = new JLabel("0");
+        sliderValueLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        sliderValueLabel.setForeground(updateButtonColor);
         
-        // Tabbed pane
-        tabbedPane = new JTabbedPane();
-        
-        // Table setup
+        // Table setup - Clean with black text, minimal borders
         String[] columns = {"ID", "Student ID", "Name", "Email", "Course", "Marks", "Grade"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
@@ -222,170 +182,315 @@ public class MainFrame extends JFrame {
                 return false;
             }
         };
-        table = new JTable(tableModel);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getTableHeader().setReorderingAllowed(false);
-        table.setRowHeight(25);
-        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
         
-        // Add selection listener
+        table = new JTable(tableModel);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setForeground(Color.BLACK);
+        table.setRowHeight(35);
+        table.setShowHorizontalLines(true);
+        table.setShowVerticalLines(false);
+        table.setGridColor(new Color(220, 220, 220));
+        table.setSelectionBackground(new Color(173, 216, 230));
+        table.setSelectionForeground(Color.BLACK);
+        table.setBackground(panelColor);
+        table.setBorder(BorderFactory.createEmptyBorder());
+        table.setIntercellSpacing(new Dimension(0, 0));
+        
+        // Table header - Clean
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        header.setBackground(new Color(240, 248, 255));
+        header.setForeground(Color.BLACK);
+        header.setPreferredSize(new Dimension(header.getWidth(), 38));
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
+        
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
                 loadSelectedStudent();
             }
         });
         
-        // Text areas
-        displayArea = new JTextArea(10, 50);
-        displayArea.setEditable(false);
-        displayArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        displayArea.setBorder(BorderFactory.createTitledBorder("Student Records"));
-        
-        stringManipulationArea = new JTextArea(10, 50);
-        stringManipulationArea.setEditable(false);
-        stringManipulationArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        stringManipulationArea.setBorder(BorderFactory.createTitledBorder(
-            "String Manipulation Demo (Title Case, Split, Substring, Concatenation)"));
-        
         // Status labels
         statusLabel = new JLabel("Ready");
-        statusLabel.setBorder(BorderFactory.createLoweredBevelBorder());
+        statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         
         validationLabel = new JLabel(" ");
-        validationLabel.setForeground(Color.RED);
+        validationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        validationLabel.setForeground(deleteButtonColor);
         
         studentCountLabel = new JLabel("Total Students: 0");
-        studentCountLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        studentCountLabel.setForeground(new Color(70, 130, 180));
+        studentCountLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        studentCountLabel.setForeground(updateButtonColor);
+    }
+    
+    private JTextField createTextField() {
+        JTextField field = new JTextField();
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.setForeground(Color.BLACK);
+        field.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(borderColor),
+            BorderFactory.createEmptyBorder(8, 10, 8, 10)
+        ));
+        return field;
+    }
+    
+    private JButton createAestheticButton(String text, Color bg, Color fg) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                if (getModel().isPressed()) {
+                    g2.setColor(getBackground().darker());
+                } else if (getModel().isRollover()) {
+                    g2.setColor(getBackground().brighter());
+                } else {
+                    g2.setColor(getBackground());
+                }
+                
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                g2.dispose();
+                
+                super.paintComponent(g);
+            }
+        };
+        
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        button.setBackground(bg);
+        button.setForeground(fg);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        
+        return button;
+    }
+    
+    private void addHoverEffect(JButton button, Color originalColor) {
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(originalColor.brighter());
+                button.repaint();
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(originalColor);
+                button.repaint();
+            }
+        });
     }
     
     private void layoutComponents() {
-        setLayout(new BorderLayout(10, 10));
+        // Main container
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBackground(backgroundColor);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Top panel - Input form
-        JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(70, 130, 180), 2),
-            "Student Information"));
+        // Top Panel - Title
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(backgroundColor);
+        
+        JLabel titleLabel = new JLabel("Student Management System");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        titleLabel.setForeground(updateButtonColor);
+        topPanel.add(titleLabel, BorderLayout.WEST);
+        topPanel.add(studentCountLabel, BorderLayout.EAST);
+        
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        
+        // Center Panel - Split into left and right
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(backgroundColor);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 1.0;
+        gbc.insets = new Insets(15, 0, 0, 0);
         
-        // Row 1: Name and Student ID
+        // Left Panel - Student Information Form
+        JPanel leftPanel = createFormPanel();
+        gbc.gridx = 0;
+        gbc.weightx = 0.35;
+        centerPanel.add(leftPanel, gbc);
+        
+        // Right Panel - Student List
+        JPanel rightPanel = createListPanel();
+        gbc.gridx = 1;
+        gbc.weightx = 0.65;
+        gbc.insets = new Insets(15, 15, 0, 0);
+        centerPanel.add(rightPanel, gbc);
+        
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(statusLabel, BorderLayout.SOUTH);
+        
+        add(mainPanel);
+    }
+    
+    private JPanel createFormPanel() {
+        JPanel panel = new JPanel(new BorderLayout(0, 15));
+        panel.setBackground(panelColor);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(borderColor, 1),
+            BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+        
+        // Title - No icon
+        JLabel title = new JLabel("Student Information");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        title.setForeground(updateButtonColor);
+        panel.add(title, BorderLayout.NORTH);
+        
+        // Form fields
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(panelColor);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(8, 5, 8, 5);
+        
+        // Labels - No icons
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        JLabel idLabel = new JLabel("Student ID:");
+        idLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        JLabel courseLabel = new JLabel("Course:");
+        courseLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        JLabel marksLabel = new JLabel("Marks:");
+        marksLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        // Add to form
         gbc.gridx = 0; gbc.gridy = 0;
-        inputPanel.add(new JLabel("Name:*"), gbc);
-        gbc.gridx = 1; gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0.3;
-        inputPanel.add(nameField, gbc);
+        formPanel.add(nameLabel, gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        formPanel.add(nameField, gbc);
         
-        gbc.gridx = 2; gbc.gridy = 0;
-        gbc.weightx = 0;
-        inputPanel.add(new JLabel("Student ID:*"), gbc);
-        gbc.gridx = 3; gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 0.2;
-        inputPanel.add(studentIdField, gbc);
-        
-        // Row 2: Email and Course
         gbc.gridx = 0; gbc.gridy = 1;
-        gbc.weightx = 0;
-        inputPanel.add(new JLabel("Email:*"), gbc);
-        gbc.gridx = 1; gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        inputPanel.add(emailField, gbc);
+        gbc.weightx = 0.3;
+        formPanel.add(idLabel, gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        formPanel.add(studentIdField, gbc);
         
-        gbc.gridx = 2; gbc.gridy = 1;
-        inputPanel.add(new JLabel("Course:*"), gbc);
-        gbc.gridx = 3; gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        inputPanel.add(courseBox, gbc);
-        
-        // Row 3: Marks and Validation
         gbc.gridx = 0; gbc.gridy = 2;
-        inputPanel.add(new JLabel("Marks:*"), gbc);
-        gbc.gridx = 1; gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        inputPanel.add(marksField, gbc);
+        gbc.weightx = 0.3;
+        formPanel.add(emailLabel, gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        formPanel.add(emailField, gbc);
         
-        gbc.gridx = 2; gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        inputPanel.add(validationLabel, gbc);
-        gbc.gridwidth = 1;
+        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.weightx = 0.3;
+        formPanel.add(courseLabel, gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        formPanel.add(courseBox, gbc);
         
-        // Row 4: Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.weightx = 0.3;
+        formPanel.add(marksLabel, gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        formPanel.add(marksField, gbc);
+        
+        gbc.gridx = 1; gbc.gridy = 5;
+        formPanel.add(validationLabel, gbc);
+        
+        panel.add(formPanel, BorderLayout.CENTER);
+        
+        // CRUD Buttons - No icons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        buttonPanel.setBackground(panelColor);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(clearButton);
         
-        gbc.gridx = 0; gbc.gridy = 3;
-        gbc.gridwidth = 4;
-        gbc.fill = GridBagConstraints.NONE;
-        inputPanel.add(buttonPanel, gbc);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
         
-        // Center panel
-        JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
+        return panel;
+    }
+    
+    private JPanel createListPanel() {
+        JPanel panel = new JPanel(new BorderLayout(0, 15));
+        panel.setBackground(panelColor);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(borderColor, 1),
+            BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
         
-        // Filter panel
-        JPanel filterPanel = new JPanel();
-        filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.Y_AXIS));
-        filterPanel.setBorder(BorderFactory.createTitledBorder("Search, Filter & Sort Options"));
+        // Top section - Search and Filters
+        JPanel topSection = new JPanel();
+        topSection.setBackground(panelColor);
+        topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
+        
+        // Title - No icon
+        JLabel listTitle = new JLabel("Student List");
+        listTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        listTitle.setForeground(updateButtonColor);
+        listTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        topSection.add(listTitle);
+        topSection.add(Box.createVerticalStrut(15));
         
         // Search row
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchPanel.add(new JLabel("Search:"));
-        searchPanel.add(searchField);
-        searchPanel.add(searchButton);
-        searchPanel.add(showAllButton);
+        JPanel searchRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        searchRow.setBackground(panelColor);
+        searchRow.add(new JLabel("Search:"));
+        searchField.setPreferredSize(new Dimension(250, 38));
+        searchRow.add(searchField);
+        searchRow.add(searchButton);
+        searchRow.add(showAllButton);
+        topSection.add(searchRow);
+        topSection.add(Box.createVerticalStrut(10));
         
-        // Checkbox row
-        JPanel checkBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        checkBoxPanel.add(filterHighMarks);
-        checkBoxPanel.add(filterComputerScience);
+        // Filter row - Checkboxes
+        JPanel filterRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        filterRow.setBackground(panelColor);
+        filterRow.add(filterHighMarks);
+        filterRow.add(filterComputerScience);
+        topSection.add(filterRow);
+        topSection.add(Box.createVerticalStrut(10));
         
-        // Radio button row
-        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        radioPanel.add(new JLabel("Sort by:"));
-        radioPanel.add(sortByName);
-        radioPanel.add(sortByMarks);
-        radioPanel.add(sortByCourse);
+        // Sort row - Radio buttons
+        JPanel sortRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        sortRow.setBackground(panelColor);
+        sortRow.add(new JLabel("Sort by:"));
+        sortRow.add(sortByName);
+        sortRow.add(sortByMarks);
+        sortRow.add(sortByCourse);
+        topSection.add(sortRow);
+        topSection.add(Box.createVerticalStrut(10));
         
-        // Slider panel
-        JPanel sliderPanel = new JPanel(new BorderLayout());
-        sliderPanel.add(marksSlider, BorderLayout.CENTER);
-        sliderPanel.add(sliderValueLabel, BorderLayout.SOUTH);
+        // Slider row
+        JPanel sliderRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        sliderRow.setBackground(panelColor);
+        sliderRow.add(new JLabel("Minimum Marks:"));
+        sliderRow.add(marksSlider);
+        sliderRow.add(new JLabel("Value:"));
+        sliderRow.add(sliderValueLabel);
+        topSection.add(sliderRow);
         
-        filterPanel.add(searchPanel);
-        filterPanel.add(checkBoxPanel);
-        filterPanel.add(radioPanel);
-        filterPanel.add(sliderPanel);
+        panel.add(topSection, BorderLayout.NORTH);
         
-        // Tabbed pane
-        JScrollPane tableScroll = new JScrollPane(table);
-        JScrollPane displayScroll = new JScrollPane(displayArea);
-        JScrollPane stringScroll = new JScrollPane(stringManipulationArea);
+        // Table with scroll
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(borderColor));
+        scrollPane.getViewport().setBackground(panelColor);
+        panel.add(scrollPane, BorderLayout.CENTER);
         
-        tabbedPane.addTab("📊 Table View", tableScroll);
-        tabbedPane.addTab("📝 Summary View", displayScroll);
-        tabbedPane.addTab("🔤 String Manipulation Demo", stringScroll);
-        
-        // North panel with filter and count
-        JPanel northPanel = new JPanel(new BorderLayout());
-        northPanel.add(filterPanel, BorderLayout.CENTER);
-        northPanel.add(studentCountLabel, BorderLayout.EAST);
-        
-        centerPanel.add(northPanel, BorderLayout.NORTH);
-        centerPanel.add(tabbedPane, BorderLayout.CENTER);
-        
-        // Add all to frame
-        add(inputPanel, BorderLayout.NORTH);
-        add(centerPanel, BorderLayout.CENTER);
-        add(statusLabel, BorderLayout.SOUTH);
+        return panel;
     }
     
     private void setupListeners() {
-        // Button listeners
         addButton.addActionListener(e -> addStudent());
         updateButton.addActionListener(e -> updateStudent());
         deleteButton.addActionListener(e -> deleteStudent());
@@ -393,7 +498,6 @@ public class MainFrame extends JFrame {
         showAllButton.addActionListener(e -> loadStudents());
         clearButton.addActionListener(e -> clearFields());
         
-        // Document listeners for validation
         DocumentListener docListener = new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { validateInputs(); }
             public void removeUpdate(DocumentEvent e) { validateInputs(); }
@@ -405,23 +509,18 @@ public class MainFrame extends JFrame {
         studentIdField.getDocument().addDocumentListener(docListener);
         marksField.getDocument().addDocumentListener(docListener);
         
-        // Filter listeners
         filterHighMarks.addActionListener(e -> applyFilters());
         filterComputerScience.addActionListener(e -> applyFilters());
         sortByName.addActionListener(e -> applyFilters());
         sortByMarks.addActionListener(e -> applyFilters());
         sortByCourse.addActionListener(e -> applyFilters());
         
-        // Slider listener
-        marksSlider.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                int value = marksSlider.getValue();
-                sliderValueLabel.setText("Minimum marks: " + value);
-                applyFilters();
-            }
+        marksSlider.addChangeListener(e -> {
+            int value = marksSlider.getValue();
+            sliderValueLabel.setText(String.valueOf(value));
+            applyFilters();
         });
         
-        // Search on enter
         searchField.addActionListener(e -> searchStudents());
     }
     
@@ -461,12 +560,12 @@ public class MainFrame extends JFrame {
         }
         
         if (valid) {
-            validationLabel.setText("✅ All fields valid");
-            validationLabel.setForeground(new Color(0, 150, 0));
+            validationLabel.setText("All fields valid");
+            validationLabel.setForeground(addButtonColor);
             addButton.setEnabled(true);
         } else {
-            validationLabel.setText("❌ " + message.toString());
-            validationLabel.setForeground(Color.RED);
+            validationLabel.setText(message.toString());
+            validationLabel.setForeground(deleteButtonColor);
             addButton.setEnabled(false);
         }
     }
@@ -500,17 +599,11 @@ public class MainFrame extends JFrame {
              ResultSet rs = ps.executeQuery()) {
             
             displayStudentsFromResultSet(rs);
-            statusLabel.setText("✅ Loaded all students");
-            
-            // Reset filter controls
-            filterHighMarks.setSelected(false);
-            filterComputerScience.setSelected(false);
-            marksSlider.setValue(0);
-            sortByName.setSelected(true);
+            statusLabel.setText("Loaded all students");
             
         } catch (SQLException e) {
             e.printStackTrace();
-            statusLabel.setText("❌ Error loading students");
+            statusLabel.setText("Error loading students");
             JOptionPane.showMessageDialog(this, 
                 "Database error: " + e.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
@@ -519,17 +612,6 @@ public class MainFrame extends JFrame {
     
     private void displayStudentsFromResultSet(ResultSet rs) throws SQLException {
         tableModel.setRowCount(0);
-        displayArea.setText("");
-        stringManipulationArea.setText("");
-        
-        stringManipulationArea.append("=== STRING MANIPULATION DEMONSTRATION ===\n");
-        stringManipulationArea.append("1. Title Case: All names are stored in Title Case\n");
-        stringManipulationArea.append("2. Split(): Extracting first names\n");
-        stringManipulationArea.append("3. Substring(): Extracting email usernames\n");
-        stringManipulationArea.append("4. Concatenation: Building summaries\n");
-        stringManipulationArea.append("5. Case-insensitive search: Using LOWER() in SQL\n\n");
-        stringManipulationArea.append("STUDENT DETAILS:\n");
-        stringManipulationArea.append("================\n\n");
         
         int count = 0;
         while (rs.next()) {
@@ -544,37 +626,16 @@ public class MainFrame extends JFrame {
             tableModel.addRow(new Object[]{
                 id, studentId, name, email, course, marks, grade
             });
-            
-            // String manipulation demos
-            String firstName = name.split(" ")[0];
-            String emailUsername = email.substring(0, email.indexOf('@'));
-            String summary = "Name: " + name + " | Course: " + course + 
-                           " | Marks: " + marks + " | Grade: " + grade;
-            
-            displayArea.append(summary + "\n");
-            
-            stringManipulationArea.append("Student " + (count+1) + ":\n");
-            stringManipulationArea.append("  Full Name: " + name + " (Title Case)\n");
-            stringManipulationArea.append("  First Name (split()): " + firstName + "\n");
-            stringManipulationArea.append("  Email Username (substring()): " + emailUsername + "\n");
-            stringManipulationArea.append("  Summary (concatenation): " + summary + "\n\n");
-            
             count++;
         }
         
         studentCountLabel.setText("Total Students: " + count);
-        
-        if (count == 0) {
-            displayArea.setText("No students match the current filters.");
-            stringManipulationArea.append("No students to display.\n");
-        }
     }
     
     private void applyFilters() {
         StringBuilder sql = new StringBuilder("SELECT * FROM students WHERE 1=1");
         List<Object> params = new ArrayList<>();
         
-        // Apply checkbox filters
         if (filterHighMarks.isSelected()) {
             sql.append(" AND marks > 75");
         }
@@ -583,14 +644,12 @@ public class MainFrame extends JFrame {
             sql.append(" AND course = 'Computer Science'");
         }
         
-        // Apply slider filter
         int minMarks = marksSlider.getValue();
         if (minMarks > 0) {
             sql.append(" AND marks >= ?");
             params.add(minMarks);
         }
         
-        // Apply sorting
         if (sortByName.isSelected()) {
             sql.append(" ORDER BY name ASC");
         } else if (sortByMarks.isSelected()) {
@@ -604,35 +663,18 @@ public class MainFrame extends JFrame {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             
-            // Set parameters
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
             
-            // Debug output
-            System.out.println("Filter SQL: " + sql);
-            System.out.println("Params: " + params);
-            
             ResultSet rs = ps.executeQuery();
             displayStudentsFromResultSet(rs);
             
-            // Build status message
-            StringBuilder statusMsg = new StringBuilder("✅ Filtered: ");
-            if (filterHighMarks.isSelected()) statusMsg.append("Marks>75 ");
-            if (filterComputerScience.isSelected()) statusMsg.append("CS only ");
-            if (minMarks > 0) statusMsg.append("Min marks=" + minMarks + " ");
-            if (sortByName.isSelected()) statusMsg.append("| Sorted by Name");
-            else if (sortByMarks.isSelected()) statusMsg.append("| Sorted by Marks (high-low)");
-            else if (sortByCourse.isSelected()) statusMsg.append("| Sorted by Course");
-            
-            statusLabel.setText(statusMsg.toString());
+            statusLabel.setText("Filters applied");
             
         } catch (SQLException e) {
             e.printStackTrace();
-            statusLabel.setText("❌ Error applying filters");
-            JOptionPane.showMessageDialog(this, 
-                "Filter error: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
+            statusLabel.setText("Filter error");
         }
     }
     
@@ -647,8 +689,7 @@ public class MainFrame extends JFrame {
         String sql = "SELECT * FROM students WHERE " +
                      "LOWER(name) LIKE ? OR " +
                      "LOWER(student_id) LIKE ? OR " +
-                     "LOWER(course) LIKE ? OR " +
-                     "LOWER(email) LIKE ? " +
+                     "LOWER(course) LIKE ? " +
                      "ORDER BY name ASC";
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -658,11 +699,9 @@ public class MainFrame extends JFrame {
             ps.setString(1, pattern);
             ps.setString(2, pattern);
             ps.setString(3, pattern);
-            ps.setString(4, pattern);
             
             ResultSet rs = ps.executeQuery();
             
-            // Check if any results
             if (!rs.isBeforeFirst()) {
                 JOptionPane.showMessageDialog(this, 
                     "No students found matching '" + keyword + "'",
@@ -672,14 +711,11 @@ public class MainFrame extends JFrame {
             }
             
             displayStudentsFromResultSet(rs);
-            statusLabel.setText("✅ Search results for: '" + keyword + "'");
+            statusLabel.setText("Found results for: '" + keyword + "'");
             
         } catch (SQLException e) {
             e.printStackTrace();
-            statusLabel.setText("❌ Search error");
-            JOptionPane.showMessageDialog(this, 
-                "Search error: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
+            statusLabel.setText("Search error");
         }
     }
     
@@ -707,19 +743,16 @@ public class MainFrame extends JFrame {
             
             if (result > 0) {
                 JOptionPane.showMessageDialog(this, 
-                    "✅ Student added successfully!\n" +
-                    "Name: " + name + "\n" +
-                    "ID: " + studentId + "\n" +
-                    "Grade: " + getGrade(marks),
+                    "Student added successfully!",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
                 
                 loadStudents();
                 clearFields();
-                statusLabel.setText("✅ Student added successfully");
+                statusLabel.setText("Student added");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            statusLabel.setText("❌ Error adding student");
+            statusLabel.setText("Error adding student");
             JOptionPane.showMessageDialog(this, 
                 "Database Error: " + e.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
@@ -729,7 +762,7 @@ public class MainFrame extends JFrame {
     private void updateStudent() {
         if (selectedStudentId == -1) {
             JOptionPane.showMessageDialog(this, 
-                "Please select a student from the table to update",
+                "Please select a student to update",
                 "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -756,35 +789,30 @@ public class MainFrame extends JFrame {
             
             if (result > 0) {
                 JOptionPane.showMessageDialog(this, 
-                    "✅ Student updated successfully!",
+                    "Student updated!",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
                 
                 loadStudents();
                 clearFields();
-                statusLabel.setText("✅ Student updated successfully");
+                statusLabel.setText("Student updated");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            statusLabel.setText("❌ Error updating student");
-            JOptionPane.showMessageDialog(this, 
-                "Database Error: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
+            statusLabel.setText("Update error");
         }
     }
     
     private void deleteStudent() {
         if (selectedStudentId == -1) {
             JOptionPane.showMessageDialog(this, 
-                "Please select a student from the table to delete",
+                "Please select a student to delete",
                 "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
         int confirm = JOptionPane.showConfirmDialog(this,
-            "Are you sure you want to delete this student?\n" +
-            "This action cannot be undone.",
-            "Confirm Delete", JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE);
+            "Delete this student?", "Confirm Delete",
+            JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         
         if (confirm == JOptionPane.YES_OPTION) {
             String sql = "DELETE FROM students WHERE id=?";
@@ -798,48 +826,40 @@ public class MainFrame extends JFrame {
                 
                 if (result > 0) {
                     JOptionPane.showMessageDialog(this, 
-                        "✅ Student deleted successfully!",
+                        "Student deleted!",
                         "Success", JOptionPane.INFORMATION_MESSAGE);
                     
                     loadStudents();
                     clearFields();
-                    statusLabel.setText("✅ Student deleted successfully");
+                    statusLabel.setText("Student deleted");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                statusLabel.setText("❌ Error deleting student");
-                JOptionPane.showMessageDialog(this, 
-                    "Database Error: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                statusLabel.setText("Delete error");
             }
         }
     }
     
     private void loadSelectedStudent() {
         int row = table.getSelectedRow();
-        selectedStudentId = (int) tableModel.getValueAt(row, 0);
-        String studentId = (String) tableModel.getValueAt(row, 1);
-        String name = (String) tableModel.getValueAt(row, 2);
-        String email = (String) tableModel.getValueAt(row, 3);
-        String course = (String) tableModel.getValueAt(row, 4);
-        double marks = (double) tableModel.getValueAt(row, 5);
-        
-        nameField.setText(name);
-        emailField.setText(email);
-        studentIdField.setText(studentId);
-        courseBox.setSelectedItem(course);
-        marksField.setText(String.valueOf(marks));
-        
-        updateButton.setEnabled(true);
-        deleteButton.setEnabled(true);
-        addButton.setEnabled(false);
-        
-        statusLabel.setText("Selected: " + name);
-    }
-    
-    private void focusOnAdd() {
-        clearFields();
-        nameField.requestFocus();
+        if (row != -1) {
+            selectedStudentId = (int) tableModel.getValueAt(row, 0);
+            String studentId = (String) tableModel.getValueAt(row, 1);
+            String name = (String) tableModel.getValueAt(row, 2);
+            String email = (String) tableModel.getValueAt(row, 3);
+            String course = (String) tableModel.getValueAt(row, 4);
+            double marks = (double) tableModel.getValueAt(row, 5);
+            
+            nameField.setText(name);
+            emailField.setText(email);
+            studentIdField.setText(studentId);
+            courseBox.setSelectedItem(course);
+            marksField.setText(String.valueOf(marks));
+            
+            updateButton.setEnabled(true);
+            deleteButton.setEnabled(true);
+            addButton.setEnabled(false);
+        }
     }
     
     private void clearFields() {
@@ -864,34 +884,23 @@ public class MainFrame extends JFrame {
         String marksText = marksField.getText().trim();
         
         if (name.isEmpty() || email.isEmpty() || studentId.isEmpty() || marksText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, 
-                "Please fill all required fields",
-                "Validation Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "All fields required");
             return false;
         }
         
         if (!ValidationUtil.isValidEmail(email)) {
-            JOptionPane.showMessageDialog(this, 
-                "Please enter a valid email address",
-                "Validation Error", JOptionPane.ERROR_MESSAGE);
-            emailField.requestFocus();
+            JOptionPane.showMessageDialog(this, "Invalid email");
             return false;
         }
         
         if (!ValidationUtil.isNumeric(marksText)) {
-            JOptionPane.showMessageDialog(this, 
-                "Marks must be a number",
-                "Validation Error", JOptionPane.ERROR_MESSAGE);
-            marksField.requestFocus();
+            JOptionPane.showMessageDialog(this, "Marks must be number");
             return false;
         }
         
         double marks = Double.parseDouble(marksText);
         if (marks < 0 || marks > 100) {
-            JOptionPane.showMessageDialog(this, 
-                "Marks must be between 0 and 100",
-                "Validation Error", JOptionPane.ERROR_MESSAGE);
-            marksField.requestFocus();
+            JOptionPane.showMessageDialog(this, "Marks 0-100");
             return false;
         }
         
