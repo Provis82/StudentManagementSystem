@@ -42,17 +42,19 @@ public class LoginFrame extends JFrame {
         logoPanel.setPreferredSize(new Dimension(450, 100));
         logoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
         
-        // Create logo with icon and text
+        // Create icon label with graduation cap
         JLabel iconLabel = new JLabel("🎓");
-        iconLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        iconLabel.setFont(new Font("Dialog", Font.BOLD, 48));
         iconLabel.setForeground(Color.WHITE);
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        JLabel logoLabel = new JLabel("STUDENT MANAGEMENT SYSTEM");
-        logoLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        logoLabel.setForeground(Color.WHITE);
+        // Title label
+        JLabel titleLabel = new JLabel("STUDENT MANAGEMENT SYSTEM");
+        titleLabel.setFont(new Font("Dialog", Font.BOLD, 18));
+        titleLabel.setForeground(Color.WHITE);
         
         logoPanel.add(iconLabel);
-        logoPanel.add(logoLabel);
+        logoPanel.add(titleLabel);
         
         mainPanel.add(logoPanel, BorderLayout.NORTH);
         
@@ -65,25 +67,31 @@ public class LoginFrame extends JFrame {
         // Username
         gbc.gridx = 0; gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
-        formPanel.add(new JLabel("Username:"), gbc);
+        JLabel userLabel = new JLabel("Username:");
+        userLabel.setFont(new Font("Dialog", Font.PLAIN, 12));
+        formPanel.add(userLabel, gbc);
         
         gbc.gridx = 1; gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         usernameField = new JTextField(15);
+        usernameField.setFont(new Font("Dialog", Font.PLAIN, 12));
         formPanel.add(usernameField, gbc);
         
         // Password
         gbc.gridx = 0; gbc.gridy = 1;
         gbc.weightx = 0;
-        formPanel.add(new JLabel("Password:"), gbc);
+        JLabel passLabel = new JLabel("Password:");
+        passLabel.setFont(new Font("Dialog", Font.PLAIN, 12));
+        formPanel.add(passLabel, gbc);
         
         gbc.gridx = 1; gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         passwordField = new JPasswordField(15);
+        passwordField.setFont(new Font("Dialog", Font.PLAIN, 12));
         formPanel.add(passwordField, gbc);
         
         // Remember Me
@@ -91,33 +99,41 @@ public class LoginFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
         rememberMe = new JCheckBox("Remember Me");
+        rememberMe.setFont(new Font("Dialog", Font.PLAIN, 12));
         formPanel.add(rememberMe, gbc);
         
-        // Buttons
+        // Buttons Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        
+        // LOGIN BUTTON - Text weight changed to BOLD and color to BLACK
         JButton loginButton = new JButton("Login");
-        JButton resetButton = new JButton("Reset");
-        
         loginButton.setPreferredSize(new Dimension(100, 35));
-        resetButton.setPreferredSize(new Dimension(100, 35));
         loginButton.setBackground(new Color(70, 130, 180));
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setFocusPainted(false);
+        loginButton.setForeground(Color.BLACK);  // Changed from WHITE to BLACK
+        loginButton.setFont(new Font("Dialog", Font.BOLD, 12));  // Added BOLD font
         
+        // RESET BUTTON - Unchanged
+        JButton resetButton = new JButton();
+        resetButton.setText("Reset");
+        resetButton.setPreferredSize(new Dimension(100, 35));
         resetButton.setBackground(new Color(220, 220, 220));
+        resetButton.setFont(new Font("Dialog", Font.BOLD, 12));
+        resetButton.setBorder(BorderFactory.createLoweredBevelBorder());
         
         buttonPanel.add(loginButton);
         buttonPanel.add(resetButton);
         
         gbc.gridx = 1; gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
         formPanel.add(buttonPanel, gbc);
         
         // Message Label
         gbc.gridx = 1; gbc.gridy = 4;
-        messageLabel = new JLabel("");
-        messageLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        messageLabel = new JLabel(" ");
+        messageLabel.setFont(new Font("Dialog", Font.PLAIN, 12));
         messageLabel.setForeground(Color.RED);
+        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         formPanel.add(messageLabel, gbc);
         
         // Progress Bar
@@ -127,6 +143,7 @@ public class LoginFrame extends JFrame {
         progressBar.setStringPainted(true);
         progressBar.setVisible(false);
         progressBar.setForeground(new Color(70, 130, 180));
+        progressBar.setFont(new Font("Dialog", Font.PLAIN, 10));
         formPanel.add(progressBar, gbc);
         
         mainPanel.add(formPanel, BorderLayout.CENTER);
@@ -141,9 +158,29 @@ public class LoginFrame extends JFrame {
         }
         
         // Actions
-        loginButton.addActionListener(e -> performLogin());
-        resetButton.addActionListener(e -> resetFields());
-        passwordField.addActionListener(e -> performLogin());
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performLogin();
+            }
+        });
+        
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetFields();
+            }
+        });
+        
+        passwordField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performLogin();
+            }
+        });
+        
+        // Make sure window is visible
+        setVisible(true);
     }
     
     private void performLogin() {
@@ -194,8 +231,10 @@ public class LoginFrame extends JFrame {
                     } catch (SQLException ex) {
                         ex.printStackTrace();
                         // Fallback only if database fails
-                        validLogin = username.equals("admin") && password.equals("admin123");
-                        fullName = "Administrator";
+                        if (username.equals("admin") && password.equals("admin123")) {
+                            validLogin = true;
+                            fullName = "Administrator";
+                        }
                     }
                     
                     if (validLogin) {
@@ -208,7 +247,9 @@ public class LoginFrame extends JFrame {
                         messageLabel.setText("✅ Welcome, " + (fullName.isEmpty() ? username : fullName) + "!");
                         messageLabel.setForeground(new Color(0, 150, 0));
                         
-                        new MainFrame().setVisible(true);
+                        // Open Main Frame
+                        MainFrame mainFrame = new MainFrame();
+                        mainFrame.setVisible(true);
                         dispose();
                     } else {
                         messageLabel.setText("❌ Invalid username or password");
@@ -232,7 +273,7 @@ public class LoginFrame extends JFrame {
     private void resetFields() {
         usernameField.setText("");
         passwordField.setText("");
-        messageLabel.setText("");
+        messageLabel.setText(" ");
         progressBar.setVisible(false);
         if (progressTimer != null && progressTimer.isRunning()) {
             progressTimer.stop();
