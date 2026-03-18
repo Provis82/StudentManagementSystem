@@ -4,10 +4,7 @@
  */
 package sms.gui;
 
-/**
- *
- * @author user
- */
+
 import java.awt.event.*;
 import java.sql.*;
 import sms.database.DatabaseConnection;
@@ -16,8 +13,13 @@ public class LoginPage extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginPage.class.getName());
 
     /**
-     * Creates new form LoginPage
-     */
+ * LoginFrame.java
+ * Handles user authentication for the Student Management System.
+ * Includes real-time validation, progress bar animation, and database authentication.
+ * 
+ * @author Provis82
+ * @version 1.0
+ */
     public LoginPage() {
         initComponents();
         setLocationRelativeTo(null);
@@ -240,7 +242,9 @@ public class LoginPage extends javax.swing.JFrame {
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
-private void handleLogin() {
+
+// Handles login button click - validates fields and authenticates user
+    private void handleLogin() {
     String username = txtUsername.getText().trim();
     String password = new String(txtPassword.getPassword()).trim();
 
@@ -272,6 +276,7 @@ private void handleLogin() {
     timer.start();
 }
 
+    // Authenticates user credentials against the database
 private void authenticateUser(String username, String password) {
     try {
         Connection conn = DatabaseConnection.getConnection();
@@ -304,6 +309,7 @@ private void authenticateUser(String username, String password) {
     }
 }
 
+// Resets all form fields to their default state
 private void handleReset() {
     txtUsername.setText("");
     txtPassword.setText("");
