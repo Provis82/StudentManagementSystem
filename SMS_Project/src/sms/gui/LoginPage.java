@@ -274,6 +274,7 @@ public class LoginPage extends javax.swing.JFrame {
         }
     });
     timer.start();
+    handleRememberMe();
 }
 
     // Authenticates user credentials against the database
@@ -318,5 +319,11 @@ private void handleReset() {
     progressBar.setValue(0);
     btnLogin.setEnabled(true);
     txtUsername.requestFocus();
+}
+// Save username if Remember Me is checked
+private void handleRememberMe() {
+    if (chkRemember.isSelected()) {
+        System.out.println("Remember Me: " + txtUsername.getText());
+    }
 }
 }
